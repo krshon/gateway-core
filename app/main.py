@@ -1,29 +1,54 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 import time
+from app.auth import verify_token
 
 # Create the FastAPI app FIRST
 app = FastAPI(title="API Gateway")
 
-# Middleware
+# ---------------- Gateway Middleware ----------------
 @app.middleware("http")
-async def base_middleware(request: Request, call_next):
+async def gateway_middleware(request: Request, call_next):
     start_time = time.time()
+    path = request.url.path
 
-    print(f"Incoming request: {request.method} {request.url.path}")
+    print(f"Incoming request: {request.method} {path}")
 
-    response = await call_next(request)
+    # Public routes (no auth required)
+    if path in ["/", "/login", "/docs", "/openapi.json"]:
+        response = await call_next(request)
+    else:
+        # Expect Authorization header
+        auth_header = request.headers.get("Authorization")
+
+        if not auth_header:
+            raise HTTPException(status_code=401, detail="Authorization header missing")
+
+        # Support: Bearer <token>
+        if auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+        else:
+            token = auth_header
+
+        payload = verify_token(token)
+        if not payload:
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+        # Attach user info to request (optional, but realistic)
+        request.state.user = payload.get("sub")
+
+        response = await call_next(request)
 
     process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
+    response.headers["X-Process-Time"] = f"{process_time:.4f}s"
 
     print(f"Completed in {process_time:.4f}s")
-
     return response
 
-# Import routes AFTER app is created
-from app.routes import test
 
-# Register routes
+# ---------------- Routes ----------------
+from app.routes import test, auth
+
+app.include_router(auth.router)
 app.include_router(test.router)
 
 # Root endpoint
