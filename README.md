@@ -8,14 +8,15 @@ similar to real-world production backends.
 
 ## Current Features
 - Global request interception using FastAPI middleware
-- Request logging (method and endpoint)
+- Request logging (HTTP method and endpoint)
 - Request latency measurement
+- JWT-based authentication enforced at the gateway level
+- Protected routes using Authorization headers
 
 ## Planned Features
-- JWT-based authentication
 - Rate limiting
 - Structured logging and metrics
 - Cloud deployment
 
 ## Tech Stack
-FastAPI · Python · Uvicorn
+FastAPI · Python · Uvicorn · JWT
