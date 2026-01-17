@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException
 import time
 from app.auth import verify_token
+from app.rate_limiter import is_allowed
 
 # Create the FastAPI app FIRST
 app = FastAPI(title="API Gateway")
@@ -13,17 +14,17 @@ async def gateway_middleware(request: Request, call_next):
 
     print(f"Incoming request: {request.method} {path}")
 
-    # Public routes (no auth required)
+    # Public routes (no auth, no rate limiting)
     if path in ["/", "/login", "/docs", "/openapi.json"]:
         response = await call_next(request)
+
     else:
-        # Expect Authorization header
+        # ----- AUTHENTICATION -----
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:
             raise HTTPException(status_code=401, detail="Authorization header missing")
 
-        # Support: Bearer <token>
         if auth_header.startswith("Bearer "):
             token = auth_header.split(" ")[1]
         else:
@@ -33,9 +34,18 @@ async def gateway_middleware(request: Request, call_next):
         if not payload:
             raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-        # Attach user info to request (optional, but realistic)
-        request.state.user = payload.get("sub")
+        # Attach user info
+        user_id = payload.get("sub")
+        request.state.user = user_id
 
+        # ----- RATE LIMITING -----
+        if not is_allowed(user_id):
+            raise HTTPException(
+                status_code=429,
+                detail="Too many requests, please try again later"
+            )
+
+        # Forward request only if allowed
         response = await call_next(request)
 
     process_time = time.time() - start_time
