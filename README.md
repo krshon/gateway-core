@@ -12,9 +12,9 @@ similar to real-world production backends.
 - Request latency measurement
 - JWT-based authentication enforced at the gateway level
 - Protected routes using Authorization headers
+- Per-user rate limiting to prevent abuse
 
 ## Planned Features
-- Rate limiting
 - Structured logging and metrics
 - Cloud deployment
 
