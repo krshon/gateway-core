@@ -26,3 +26,8 @@ All incoming requests pass through a centralized middleware layer that enforces
 authentication, rate limiting, logging, and metrics before reaching protected routes.
 
 ![Architecture Diagram](assets/architecture.png)
+
+
+## 🖥 Dashboard Preview
+
+![Metrics Dashboard](assets/dashboard.png)
