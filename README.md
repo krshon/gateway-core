@@ -1,22 +1,28 @@
-# API Gateway
+# Gateway Core 🚪
 
-A simplified API Gateway built using FastAPI to understand how backend systems handle
-authentication, rate limiting, and request observability at a central entry point.
+**Gateway Core** is a production-style API Gateway built using **FastAPI** to demonstrate how
+modern backend systems handle **authentication, rate limiting, observability, and traffic control**
+at a centralized entry point.
 
-The project focuses on implementing these cross-cutting concerns using middleware,
-similar to real-world production backends.
+The project is designed around **middleware-driven architecture**, mirroring real-world backend
+systems where cross-cutting concerns are enforced before requests reach application logic.
 
-## Current Features
-- Global request interception using FastAPI middleware
-- Request logging (HTTP method and endpoint)
-- Request latency measurement
-- JWT-based authentication enforced at the gateway level
-- Protected routes using Authorization headers
-- Per-user rate limiting to prevent abuse
+---
 
-## Planned Features
-- Structured logging and metrics
-- Cloud deployment
+## 🚀 Key Features
 
-## Tech Stack
-FastAPI · Python · Uvicorn · JWT
+- Global request interception using FastAPI middleware  
+- JWT-based authentication enforced at the gateway level  
+- Per-user rate limiting to prevent abuse  
+- Structured JSON logging with request tracing (Request IDs)  
+- In-memory metrics collection for traffic and error monitoring  
+- Lightweight, read-only metrics dashboard for real-time visibility  
+
+---
+
+## 🧠 Architecture Overview
+
+All incoming requests pass through a centralized middleware layer that enforces
+authentication, rate limiting, logging, and metrics before reaching protected routes.
+
+![Architecture Diagram](assets/architecture.png)

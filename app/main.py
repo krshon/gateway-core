@@ -5,6 +5,9 @@ from app.auth import verify_token
 from app.rate_limiter import is_allowed
 from app.logger import log_event
 from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse
+from pathlib import Path
+
 
 from app.metrics import inc, snapshot
 
@@ -21,7 +24,8 @@ async def gateway_middleware(request: Request, call_next):
 
     try:
         # Public routes
-        if path in ["/", "/login", "/docs", "/openapi.json", "/metrics"]:
+        if path in ["/", "/login", "/docs", "/openapi.json", "/metrics", "/dashboard"]:
+
             response = await call_next(request)
             inc("success")
 
@@ -97,3 +101,9 @@ def root():
 @app.get("/metrics")
 def metrics():
     return snapshot()
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard():
+    html = Path("app/static/dashboard.html").read_text()
+    return HTMLResponse(content=html)
+
